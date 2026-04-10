@@ -8,6 +8,7 @@ const authValidator = require('./auth.validator');
 const router = express.Router();
 
 router.post('/register', validateMiddleware({ body: authValidator.registerBody }), authController.register);
+router.post('/signup', validateMiddleware({ body: authValidator.signupBody }), authController.signup);
 router.post('/login', validateMiddleware({ body: authValidator.loginBody }), authController.login);
 router.post('/refresh', validateMiddleware({ body: authValidator.refreshBody }), authController.refresh);
 router.post('/logout', validateMiddleware({ body: authValidator.logoutBody }), authController.logout);

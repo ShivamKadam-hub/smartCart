@@ -21,6 +21,8 @@ function buildCartView(cart, populated = false) {
             category: product.category,
             brand: product.brand,
             imageUrl: product.imageUrl,
+            tags: product.tags || [],
+            rating: product.metadata?.rating ?? 0,
           }
         : undefined,
       quantity: item.quantity,
@@ -47,6 +49,8 @@ function buildCartView(cart, populated = false) {
             category: product.category,
             brand: product.brand,
             imageUrl: product.imageUrl,
+            tags: product.tags || [],
+            rating: product.metadata?.rating ?? 0,
           }
         : undefined,
       quantity: item.quantity,
@@ -164,6 +168,8 @@ async function buildRecommendations(cart) {
       imageUrl: entry.candidate.imageUrl,
       category: entry.candidate.category,
       brand: entry.candidate.brand,
+      tags: entry.candidate.tags || [],
+      rating: entry.candidate.metadata?.rating ?? 0,
       reasons: entry.reasons,
     }));
 }
@@ -230,7 +236,8 @@ async function addItem(userId, payload) {
   }
 
   await cart.save();
-  return loadPopulatedCart(userId);
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
 }
 
 async function updateItem(userId, itemId, payload) {
@@ -262,7 +269,8 @@ async function updateItem(userId, itemId, payload) {
   item.sku = product.slug;
 
   await cart.save();
-  return loadPopulatedCart(userId);
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
 }
 
 async function removeItem(userId, itemId) {
@@ -277,14 +285,16 @@ async function removeItem(userId, itemId) {
   }
 
   await cart.save();
-  return loadPopulatedCart(userId);
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
 }
 
 async function clearCart(userId) {
   const cart = await ensureCart(userId);
   cart.items = [];
   await cart.save();
-  return loadPopulatedCart(userId);
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
 }
 
 async function saveForLater(userId, itemId) {
@@ -316,7 +326,8 @@ async function saveForLater(userId, itemId) {
   }
 
   await cart.save();
-  return loadPopulatedCart(userId);
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
 }
 
 async function moveSavedItemToCart(userId, savedItemId) {
@@ -361,7 +372,24 @@ async function moveSavedItemToCart(userId, savedItemId) {
   cart.savedForLater = cart.savedForLater.filter((entry) => toIdString(entry._id) !== toIdString(savedItemId));
 
   await cart.save();
-  return loadPopulatedCart(userId);
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
+}
+
+async function removeSavedItem(userId, savedItemId) {
+  const cart = await ensureCart(userId);
+  const before = cart.savedForLater.length;
+  cart.savedForLater = cart.savedForLater.filter((entry) => toIdString(entry._id) !== toIdString(savedItemId));
+
+  if (cart.savedForLater.length === before) {
+    const error = new Error('Saved item not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  await cart.save();
+  const populated = await loadPopulatedCart(userId);
+  return buildCartView(populated, true);
 }
 
 async function getCart(userId) {
@@ -381,6 +409,7 @@ module.exports = {
   getCart,
   moveSavedItemToCart,
   removeItem,
+  removeSavedItem,
   saveForLater,
   updateItem,
 };

@@ -18,6 +18,11 @@ const register = asyncHandler(async (req, res) => {
   return respond(res, 201, 'User registered successfully.', result);
 });
 
+const signup = asyncHandler(async (req, res) => {
+  const result = await authService.signup(req.body);
+  return respond(res, 201, 'User signed up successfully.', result);
+});
+
 const login = asyncHandler(async (req, res) => {
   const result = await authService.login(req.body);
   return respond(res, 200, 'Login successful.', result);
@@ -44,4 +49,5 @@ module.exports = {
   me,
   refresh,
   register,
+  signup,
 };

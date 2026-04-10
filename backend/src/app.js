@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 
 const authRoutes = require('./modules/auth/auth.routes');
 const cartRoutes = require('./modules/cart/cart.routes');
+const wishlistRoutes = require('./modules/cart/wishlist.routes');
+const productsRoutes = require('./modules/products/products.routes');
+const mlRoutes = require('./modules/products/ml.routes');
 const { errorHandler } = require('./modules/cart/cart.controller');
 
 const app = express();
@@ -29,7 +32,10 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productsRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/ml', mlRoutes);
 
 app.use((req, res) => {
   res.status(404).json({

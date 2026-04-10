@@ -69,6 +69,14 @@ const moveSavedItemToCart = asyncHandler(async (req, res) => {
   });
 });
 
+const removeSavedItem = asyncHandler(async (req, res) => {
+  const cart = await cartService.removeSavedItem(req.user.id, req.params.savedItemId);
+  return res.status(200).json({
+    message: 'Saved item removed.',
+    data: cart,
+  });
+});
+
 function errorHandler(error, req, res, next) {
   return handleError(res, error);
 }
@@ -80,6 +88,7 @@ module.exports = {
   getCart,
   moveSavedItemToCart,
   removeItem,
+  removeSavedItem,
   saveForLater,
   updateItem,
 };

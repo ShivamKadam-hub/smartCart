@@ -40,5 +40,10 @@ router.post(
   validateMiddleware({ params: cartValidator.savedItemIdParam }),
   cartController.moveSavedItemToCart
 );
+router.delete(
+  '/saved-items/:savedItemId',
+  validateMiddleware({ params: cartValidator.savedItemIdParam }),
+  cartController.removeSavedItem
+);
 
 module.exports = router;

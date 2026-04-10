@@ -2,10 +2,11 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../../models/user.model');
 const {
-  generateAccessToken,
-  generateRefreshToken,
-  getRefreshSecret,
+ generateAccessToken,
+ generateRefreshToken,
+ getRefreshSecret,
 } = require('../../utils/jwt');
+const { normalizePassword } = require('./auth.validator');
 
 function sanitizeUser(user) {
   return {
@@ -20,7 +21,17 @@ function sanitizeUser(user) {
 }
 
 async function register(payload) {
-  const existingUser = await User.findOne({ email: payload.email });
+  const password = normalizePassword(payload);
+  const name = String(payload.name || '').trim();
+  const email = String(payload.email || '').trim().toLowerCase();
+
+  if (!password) {
+    const error = new Error('Password is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const existingUser = await User.findOne({ email });
   if (existingUser) {
     const error = new Error('Email is already registered.');
     error.statusCode = 409;
@@ -28,9 +39,9 @@ async function register(payload) {
   }
 
   const user = await User.create({
-    name: payload.name,
-    email: payload.email,
-    password: payload.password,
+    name,
+    email,
+    password,
   });
 
   return {
@@ -38,6 +49,10 @@ async function register(payload) {
     accessToken: generateAccessToken(user),
     refreshToken: generateRefreshToken(user),
   };
+}
+
+async function signup(payload) {
+  return register(payload);
 }
 
 async function login(payload) {
@@ -127,4 +142,5 @@ module.exports = {
   me,
   refreshToken,
   register,
+  signup,
 };
