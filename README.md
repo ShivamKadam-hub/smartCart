@@ -1,50 +1,48 @@
-# Welcome to your Expo app 👋
+SmartCart – AI-Powered Smart Cart System
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-## Get started
+Overview
 
-1. Install dependencies
+SmartCart is an AI-based e-commerce cart system that provides real-time personalized recommendations using a hybrid ML approach.
 
-   ```bash
-   npm install
-   ```
+Features
+	•	Hybrid ML (Association + Semantic)
+	•	Intent Detection (budget, category, style)
+	•	Real-time cart suggestions
+	•	Smart scoring & ranking
+	•	Chatbot integration
 
-2. Start the app
+    Tech Stack
+	•	Frontend: React Native (Expo)
+	•	Backend: Flask (Python)
+	•	Database: MongoDB
+	•	ML: Sentence Transformers + Apriori
 
-   ```bash
-   npx expo start
-   ```
+   TechStack (Expo)
+   # Install dependencies
+npm install
 
-In the output, you'll find options to open the app in a
+# Start app
+npx expo start
+Then open in:
+	•	Android Emulator
+	•	iOS Simulator
+	•	Expo Go
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Backend Setup
+pip install -r requirements.txt
+python ml_service.py
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+ML Logic
 
-## Get a fresh project
+Final Score:
+3× Association + Category (0.3) + Style (0.2) + Brand (0.1) + 0.3× Semantic
 
-When you're ready, run:
+ APIs
+	•	POST /recommend
+	•	POST /chat
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+   Impact
+	•	Improves personalization
+	•	Reduces cart abandonment
+	•	Enhances user experience
