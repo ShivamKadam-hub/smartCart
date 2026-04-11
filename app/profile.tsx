@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
 import { useCart } from "./context/CartContext";
+import { useAuth } from "./context/AuthContext";
 
 const COLORS = {
   bg: "#F6F5F1",
@@ -32,6 +33,12 @@ const quickLinks = [
 export default function ProfileScreen() {
   const router = useRouter();
   const { totalItemCount, savedItems } = useCart();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace("/(tabs)/Login");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,27 +59,63 @@ export default function ProfileScreen() {
         <Text style={styles.title}>Profile</Text>
         <Text style={styles.subtitle}>Sign in to keep your saved items, carts, and orders together.</Text>
 
-        <View style={styles.heroCard}>
-          <View style={styles.avatarCircle}>
-            <Ionicons name="person-outline" size={30} color={COLORS.gold} />
+        {/* User is logged in - Show user details */}
+        {user ? (
+          <View style={styles.heroCard}>
+            <View style={styles.avatarCircle}>
+              <Ionicons name="person" size={30} color={COLORS.white} />
+            </View>
+            <Text style={styles.heroTitle}>{user.name}</Text>
+            <Text style={styles.userEmail}>{user.email}</Text>
+            
+            <View style={styles.userDetailsSection}>
+              <View style={styles.detailRow}>
+                <Ionicons name="mail-outline" size={18} color={COLORS.gold} />
+                <Text style={styles.detailText}>{user.email}</Text>
+              </View>
+              {user.createdAt && (
+                <View style={styles.detailRow}>
+                  <Ionicons name="calendar-outline" size={18} color={COLORS.gold} />
+                  <Text style={styles.detailText}>
+                    Member since {new Date(user.createdAt).toLocaleDateString()}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+              activeOpacity={0.86}
+            >
+              <Ionicons name="log-out-outline" size={18} color={COLORS.white} />
+              <Text style={styles.logoutButtonText}>Log out</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.heroTitle}>Welcome to your account</Text>
-          <Text style={styles.heroCopy}>
-            Create an account for faster checkout, or sign in to continue where you left off.
-          </Text>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={() => router.push("/Login")}
-            activeOpacity={0.86}>
-            <Text style={styles.primaryButtonText}>Log in</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => router.push("/Signup")}
-            activeOpacity={0.86}>
-            <Text style={styles.secondaryButtonText}>Create account</Text>
-          </TouchableOpacity>
-        </View>
+        ) : (
+          /* User is not logged in - Show login/signup UI */
+          <View style={styles.heroCard}>
+            <View style={styles.avatarCircle}>
+              <Ionicons name="person-outline" size={30} color={COLORS.gold} />
+            </View>
+            <Text style={styles.heroTitle}>Welcome to your account</Text>
+            <Text style={styles.heroCopy}>
+              Create an account for faster checkout, or sign in to continue where you left off.
+            </Text>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              onPress={() => router.push("/Login")}
+              activeOpacity={0.86}>
+              <Text style={styles.primaryButtonText}>Log in</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => router.push("/Signup")}
+              activeOpacity={0.86}>
+              <Text style={styles.secondaryButtonText}>Create account</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         <View style={styles.metricsRow}>
           <View style={styles.metricCard}>
@@ -161,6 +204,42 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: COLORS.black,
     marginBottom: 8,
+  },
+  userEmail: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    marginBottom: 18,
+  },
+  userDetailsSection: {
+    marginBottom: 20,
+    paddingBottom: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+    gap: 12,
+  },
+  detailText: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    flex: 1,
+  },
+  logoutButton: {
+    backgroundColor: COLORS.black,
+    borderRadius: 16,
+    paddingVertical: 15,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
+  logoutButtonText: {
+    color: "white",
+    fontSize: 13,
+    fontWeight: "800",
   },
   heroCopy: {
     fontSize: 14,

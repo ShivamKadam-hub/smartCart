@@ -66,21 +66,34 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const { accessToken, user } = useAuth();
   const [items, setItems] = useState<WishlistItem[]>([]);
 
-  const hydrateFromBackend = useCallback(async () => {
+  // Track which user's wishlist is loaded to avoid redundant fetches
+  const loadedUserIdRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    // User logged out — wipe wishlist immediately
     if (!accessToken || !user) {
-      // Not logged in — keep local wishlist items as-is
+      setItems([]);
+      loadedUserIdRef.current = null;
       return;
     }
 
-    const response = await getWishlist(accessToken);
-    setItems(mapProductsToWishlistItems(response.data.items || []));
-  }, [accessToken, user]);
+    // Same user — skip re-fetch
+    if (loadedUserIdRef.current === user.id) {
+      return;
+    }
 
-  useEffect(() => {
-    void hydrateFromBackend().catch(() => {
-      // Backend fetch failed — keep existing local wishlist items
-    });
-  }, [hydrateFromBackend]);
+    // New user — clear previous data, then load theirs
+    setItems([]);
+    loadedUserIdRef.current = user.id;
+
+    getWishlist(accessToken)
+      .then((response) => {
+        setItems(mapProductsToWishlistItems(response.data.items || []));
+      })
+      .catch(() => {
+        setItems([]);
+      });
+  }, [accessToken, user]);
 
   const addToWishlist = useCallback(
     async (item: WishlistItem) => {

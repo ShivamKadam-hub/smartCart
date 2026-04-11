@@ -60,45 +60,64 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [cartItems]
   );
 
-  const hydrateFromBackend = useCallback(async () => {
+  // Track which user's cart is currently loaded to avoid redundant fetches
+  const loadedUserIdRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    // User logged out — immediately wipe cart in memory
     if (!accessToken || !user) {
-      // Not logged in — keep local cart items as-is
+      setCartItems([]);
+      setSavedItems([]);
+      loadedUserIdRef.current = null;
       return;
     }
 
-    const response = await getCart(accessToken);
-    const nextCartItems = (response.data.items || []).map((item) => ({
-      id: item.id,
-      backendCartItemId: item.id,
-      backendProductId: item.productId,
-      name: item.name,
-      description: item.product?.description || item.name,
-      price: item.price,
-      img: item.product?.imageUrl || "",
-      label: item.product?.category,
-      quantity: item.quantity,
-    }));
-    const nextSavedItems = (response.data.savedForLater || []).map((item) => ({
-      id: item.id,
-      backendCartItemId: item.id,
-      backendProductId: item.productId,
-      name: item.name,
-      description: item.name,
-      price: item.price,
-      img: "",
-      label: "Saved",
-      quantity: item.quantity,
-    }));
+    // Same user still logged in — skip re-fetch
+    if (loadedUserIdRef.current === user.id) {
+      return;
+    }
 
-    setCartItems(nextCartItems);
-    setSavedItems(nextSavedItems);
+    // Different user logged in — clear previous user's data, then load this user's cart
+    setCartItems([]);
+    setSavedItems([]);
+    loadedUserIdRef.current = user.id;
+
+    const fetchCart = async () => {
+      try {
+        const response = await getCart(accessToken);
+        const nextCartItems = (response.data.items || []).map((item) => ({
+          id: item.id,
+          backendCartItemId: item.id,
+          backendProductId: item.productId,
+          name: item.name,
+          description: item.product?.description || item.name,
+          price: item.price,
+          img: item.product?.imageUrl || "",
+          label: item.product?.category,
+          quantity: item.quantity,
+        }));
+        const nextSavedItems = (response.data.savedForLater || []).map((item) => ({
+          id: item.id,
+          backendCartItemId: item.id,
+          backendProductId: item.productId,
+          name: item.name,
+          description: item.name,
+          price: item.price,
+          img: "",
+          label: "Saved",
+          quantity: item.quantity,
+        }));
+        setCartItems(nextCartItems);
+        setSavedItems(nextSavedItems);
+      } catch {
+        // Backend fetch failed — start fresh for this user
+        setCartItems([]);
+        setSavedItems([]);
+      }
+    };
+
+    void fetchCart();
   }, [accessToken, user]);
-
-  useEffect(() => {
-    void hydrateFromBackend().catch(() => {
-      // Backend fetch failed — keep existing local cart items
-    });
-  }, [hydrateFromBackend]);
 
   const addToCart = useCallback(async (product: AddToCartPayload) => {
     if (accessToken && product.backendProductId) {
