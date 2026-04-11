@@ -46,7 +46,7 @@ export default function BundleTrackerScreen() {
       description: product.description,
       price: product.price,
       img: product.img,
-      label: product.tag,
+      label: product.category,
       originalPrice: product.originalPrice,
       color: product.color,
     });
@@ -156,6 +156,33 @@ export default function BundleTrackerScreen() {
                       </ScrollView>
                     </View>
                   ))}
+                </View>
+              )}
+
+              {/* Completed Bundle State */}
+              {bundle.isCompleted && (
+                <View style={styles.completedSection}>
+                  <View style={styles.completedContent}>
+                    <View style={styles.checkmarkCircle}>
+                      <Ionicons name="checkmark" size={32} color={COLORS.white} />
+                    </View>
+                    <Text style={styles.completedTitle}>Bundle Unlocked!</Text>
+                    <Text style={styles.completedSubtitle}>
+                      Discount of {bundle.discountPercent}% automatically applied
+                    </Text>
+                    <View style={styles.savingsBox}>
+                      <Text style={styles.savingsLabel}>You Save</Text>
+                      <Text style={styles.savingsAmount}>₹{bundle.potentialSavings.toLocaleString()}</Text>
+                    </View>
+                    <TouchableOpacity 
+                      style={styles.checkoutButton}
+                      onPress={() => router.push("/cart")}
+                      activeOpacity={0.82}
+                    >
+                      <Text style={styles.checkoutButtonText}>View in Cart</Text>
+                      <Ionicons name="arrow-forward" size={18} color={COLORS.white} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
               )}
             </View>
@@ -375,6 +402,72 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     color: COLORS.black,
+  },
+  completedSection: {
+    padding: 24,
+    backgroundColor: `rgba(46, 125, 50, 0.08)`,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(46, 125, 50, 0.2)",
+  },
+  completedContent: {
+    alignItems: "center",
+  },
+  checkmarkCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.success,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  completedTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: COLORS.black,
+    marginBottom: 6,
+  },
+  completedSubtitle: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  savingsBox: {
+    width: "100%",
+    backgroundColor: COLORS.white,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: COLORS.success,
+    alignItems: "center",
+  },
+  savingsLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  savingsAmount: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: COLORS.success,
+  },
+  checkoutButton: {
+    width: "100%",
+    backgroundColor: COLORS.success,
+    borderRadius: 12,
+    paddingVertical: 14,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+  },
+  checkoutButtonText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: "800",
   },
   bottomSpacer: {
     height: 100,
